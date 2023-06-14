@@ -6,31 +6,47 @@ use winit::{
 
 use tray_icon::{TrayIconBuilder, menu::{Menu, MenuItem, MenuEvent}, TrayEvent};
 
+enum MenuAction {
+    Exit,
+    None
+}
+
 fn main() {
     let path = "./assets/icon.png";
     let icon = load_icon(std::path::Path::new(path));
     
 
     let item1 = MenuItem::new("Item 1", true, None);
+    let item2 = MenuItem::new("Item 2", true, None);
+    let exit_item = MenuItem::new("Exit", true, None);
     let tray_menu = Menu::new();
     tray_menu.append(&item1);
-    
-    let tray_icon = TrayIconBuilder::new()
+    tray_menu.append(&item2);
+    tray_menu.append(&exit_item);
+
+    //A dictionary of Strings and the corresponding MenuItem ids
+    let menu_dict: Vec<(MenuAction, u32)> = vec![
+        (MenuAction::None, item1.id()), 
+        (MenuAction::None, item2.id()), 
+        (MenuAction::Exit, exit_item.id())
+    ];
+
+    let _tray_icon = TrayIconBuilder::new()
         .with_menu(Box::new(tray_menu))
-        .with_tooltip("system-tray - tray icon library!")
+        .with_tooltip("Work Timer Settings")
         .with_icon(icon)
         .build()
         .unwrap();
 
     let event_loop = EventLoop::new();
     
-    let window: Window = WindowBuilder::new()
+    let _window: Window = WindowBuilder::new()
         .with_decorations(false)
         .with_transparent(true)
         .with_inner_size(LogicalSize::new(50, 50))
         .with_position(PhysicalPosition::new(50, 920))
         .with_window_level(WindowLevel::AlwaysOnTop)
-        .with_title("A fantastic window!")
+        .with_title("Work timer")
         .build(&event_loop)
         .unwrap();
 
@@ -43,8 +59,8 @@ fn main() {
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Poll;
 
-        println!("{}", i);
-        i += 1;
+        //println!("{}", i);
+        //i += 1;
 
         if let Ok(event) = tray_channel.try_recv() {
             println!("{event:?}");
