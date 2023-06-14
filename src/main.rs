@@ -1,10 +1,10 @@
 use winit::{
     event::{Event, WindowEvent},
-    event_loop::EventLoop,
+    event_loop::{EventLoop, ControlFlow},
     window::{WindowBuilder, Window, WindowLevel}, dpi::{PhysicalPosition, LogicalSize},
 };
 
-use tray_icon::{TrayIconBuilder, menu::{Menu, MenuItem}};
+use tray_icon::{TrayIconBuilder, menu::{Menu, MenuItem, MenuEvent}, TrayEvent};
 
 fn main() {
     let path = "./assets/icon.png";
@@ -27,19 +27,32 @@ fn main() {
     let window: Window = WindowBuilder::new()
         .with_decorations(false)
         .with_transparent(true)
-        .with_inner_size(LogicalSize::new(200, 200))
-        .with_position(PhysicalPosition::new(600, 100))
+        .with_inner_size(LogicalSize::new(50, 50))
+        .with_position(PhysicalPosition::new(50, 920))
         .with_window_level(WindowLevel::AlwaysOnTop)
         .with_title("A fantastic window!")
         .build(&event_loop)
         .unwrap();
 
 
+    let menu_channel = MenuEvent::receiver();
+    let tray_channel = TrayEvent::receiver();
+
+    let mut i = 0;
+
     event_loop.run(move |event, _, control_flow| {
-        control_flow.set_wait();
-        //println!("{event:?}");
+        *control_flow = ControlFlow::Poll;
 
+        println!("{}", i);
+        i += 1;
 
+        if let Ok(event) = tray_channel.try_recv() {
+            println!("{event:?}");
+        }
+
+        if let Ok(event) = menu_channel.try_recv() {
+            println!("{event:?}");
+        }
 
         match event {
             Event::WindowEvent {
