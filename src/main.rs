@@ -4,14 +4,17 @@ use winit::{
     window::{WindowBuilder, Window, WindowLevel}, dpi::{PhysicalPosition, LogicalSize},
 };
 
-use tray_icon::{TrayIconBuilder, menu::Menu};
+use tray_icon::{TrayIconBuilder, menu::{Menu, MenuItem}};
 
 fn main() {
-    let tray_menu = Menu::new();
-
     let path = "./assets/icon.png";
     let icon = load_icon(std::path::Path::new(path));
+    
 
+    let item1 = MenuItem::new("Item 1", true, None);
+    let tray_menu = Menu::new();
+    tray_menu.append(&item1);
+    
     let tray_icon = TrayIconBuilder::new()
         .with_menu(Box::new(tray_menu))
         .with_tooltip("system-tray - tray icon library!")
