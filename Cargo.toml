@@ -6,6 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+chrono = "0.4.26"
 image = "0.24.6"
 tray-icon = "0.5.1"
 winit = "0.28.6"
+softbuffer = "0.3.0"
