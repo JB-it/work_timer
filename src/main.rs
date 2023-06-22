@@ -11,8 +11,8 @@ enum MenuAction {
     None
 }
 
-const WORK_SECONDS: i64 = 10;
-const BREAK_SECONDS: i64 = 3;
+const WORK_SECONDS: i64 = 20 * 60; // 20 minutes
+const BREAK_SECONDS: i64 = 5 * 60; // 5 minutes
 
 const RED: u32 = 0xFFFF0000;
 const GREEN: u32 = 0xFF00FF00;
@@ -27,17 +27,17 @@ fn main() {
     let icon = load_icon(std::path::Path::new(path));
     
 
-    let item1 = MenuItem::new("Item 1", true, None);
-    let item2 = MenuItem::new("Item 2", true, None);
+    //let item1 = MenuItem::new("Item 1", true, None);
+    //let item2 = MenuItem::new("Item 2", true, None);
     let exit_item = MenuItem::new("Exit", true, None);
     let tray_menu = Menu::new();
-    tray_menu.append(&item1);
-    tray_menu.append(&item2);
+    //tray_menu.append(&item1);
+    //tray_menu.append(&item2);
     tray_menu.append(&exit_item);
 
     let mut menu_dict: HashMap<u32, MenuAction> = HashMap::new();
-    menu_dict.insert(item1.id(), MenuAction::None);
-    menu_dict.insert(item2.id(), MenuAction::None);
+    //menu_dict.insert(item1.id(), MenuAction::None);
+    //menu_dict.insert(item2.id(), MenuAction::None);
     menu_dict.insert(exit_item.id(), MenuAction::Exit);
 
     let _tray_icon = TrayIconBuilder::new()
@@ -99,6 +99,15 @@ fn main() {
         }
 
         if let Ok(event) = menu_channel.try_recv() {
+            match menu_dict.get(&event.id).expect("Missing Menu item in dict") {
+                MenuAction::Exit => {
+                    println!("Exiting");
+                    *control_flow = winit::event_loop::ControlFlow::Exit;
+                },
+                MenuAction::None => {
+                    println!("None");
+                }
+            }
             println!("{event:?}");
         }
 
