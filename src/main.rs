@@ -8,7 +8,8 @@ use tray_icon::{TrayIconBuilder, menu::{Menu, MenuItem, MenuEvent}, TrayEvent};
 
 enum MenuAction {
     Exit,
-    None
+    ForceWork,
+    ForceBreak,
 }
 
 const WORK_SECONDS: i64 = 20 * 60; // 20 minutes
@@ -27,17 +28,17 @@ fn main() {
     let icon = load_icon(std::path::Path::new(path));
     
 
-    //let item1 = MenuItem::new("Item 1", true, None);
-    //let item2 = MenuItem::new("Item 2", true, None);
+    let work_menu = MenuItem::new("Set Working", true, None);
+    let break_menu = MenuItem::new("Set Break", true, None);
     let exit_item = MenuItem::new("Exit", true, None);
     let tray_menu = Menu::new();
-    //tray_menu.append(&item1);
-    //tray_menu.append(&item2);
+    tray_menu.append(&work_menu);
+    tray_menu.append(&break_menu);
     tray_menu.append(&exit_item);
 
     let mut menu_dict: HashMap<u32, MenuAction> = HashMap::new();
-    //menu_dict.insert(item1.id(), MenuAction::None);
-    //menu_dict.insert(item2.id(), MenuAction::None);
+    menu_dict.insert(work_menu.id(), MenuAction::ForceWork);
+    menu_dict.insert(break_menu.id(), MenuAction::ForceBreak);
     menu_dict.insert(exit_item.id(), MenuAction::Exit);
 
     let _tray_icon = TrayIconBuilder::new()
@@ -104,9 +105,17 @@ fn main() {
                     println!("Exiting");
                     *control_flow = winit::event_loop::ControlFlow::Exit;
                 },
-                MenuAction::None => {
-                    println!("None");
-                }
+                MenuAction::ForceWork => {
+                    work_state = WorkState::Working;
+                    start_time = chrono::offset::Local::now();
+                    window.request_redraw();
+                },
+                MenuAction::ForceBreak => {
+                    work_state = WorkState::Break;
+                    start_time = chrono::offset::Local::now();
+                    window.request_redraw();                    
+                },
+                
             }
             println!("{event:?}");
         }
